@@ -46,7 +46,7 @@ function AnimatedPolygons({ sides, radius }: Props) {
   const [springs] = useSprings(allPoints.length, (i) => springFn(allPoints[i]));
 
   return (
-    <div style={{ display: "flex" }}>
+    <>
       <div>
         {springs.map((props, index) => (
           <animated.div
@@ -78,7 +78,7 @@ function AnimatedPolygons({ sides, radius }: Props) {
           );
         })}
       </svg>
-    </div>
+    </>
   );
 }
 

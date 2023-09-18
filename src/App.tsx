@@ -4,7 +4,7 @@ import "./App.css";
 function App() {
   return (
     <>
-      <AnimatedPolygons sides={[4, 10]} radius={200}></AnimatedPolygons>
+      <AnimatedPolygons sides={[3, 4, 5, 6]} radius={200}></AnimatedPolygons>
     </>
   );
 }
