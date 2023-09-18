@@ -1,14 +1,10 @@
-import RhythmShape from "./RhythmShape";
-import { useState } from "react";
+import AnimatedPolygons from "./AnimatedPolygon";
 import "./App.css";
 
 function App() {
-  const [seconds, setSeconds] = useState(2);
-
   return (
     <>
-      <RhythmShape sides={3} radius={100} />
-      <RhythmShape sides={4} radius={100} />
+      <AnimatedPolygons sides={[4, 10]} radius={200}></AnimatedPolygons>
     </>
   );
 }
