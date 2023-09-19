@@ -1,37 +1,34 @@
-import { useMemo } from "react";
-import { polygon, pointMaker } from "./utils";
+import { useMemo, useState } from "react";
+import { polygon, pointMaker, createAudios } from "./utils";
 import { animated, useSprings } from "@react-spring/web";
-
-type Point = { x?: number; y?: number };
-
-type Points = Array<Point>;
 
 type Props = {
   sides: Array<number>;
   radius: number;
 };
 
-type SpringFn = {
-  from: Point;
-  to: Points;
-  loop: boolean;
-  config: { duration: number };
-};
-
-function springFn(points: number[][]): SpringFn {
+function initFn(points: number[][], audioElement: HTMLAudioElement) {
   return {
     from: pointMaker(points[0]),
     to: points
+      .slice(1)
       .map((point, index) => {
         return pointMaker(point, points[index - 1]);
       })
       .concat(pointMaker(points[0])),
     loop: true,
+    pause: true,
+    onStart: () => {
+      audioElement.play();
+    },
     config: { duration: 3000 / points.length },
   };
 }
 
 function AnimatedPolygons({ sides, radius }: Props) {
+  const [paused, setPaused] = useState(true);
+  const audios = createAudios(sides);
+
   const allPoints = useMemo(
     () => sides.map((side, index) => polygon(radius, index, side, radius)),
     [sides, radius]
@@ -43,41 +40,62 @@ function AnimatedPolygons({ sides, radius }: Props) {
       }),
     [sides]
   );
-  const [springs] = useSprings(allPoints.length, (i) => springFn(allPoints[i]));
+  const [springs, api] = useSprings(
+    allPoints.length,
+    (i) => initFn(allPoints[i], audios[i]),
+    [sides]
+  );
+
+  const togglePause = () => {
+    api.start({ pause: !paused });
+    setPaused(!paused);
+  };
+
+  const reset = () => {
+    api.start({ reset: true });
+    api.start({ pause: true });
+    setPaused(true);
+  };
 
   return (
     <>
       <div>
-        {springs.map((props, index) => (
-          <animated.div
-            style={{
-              width: 40,
-              height: 40,
-              position: "absolute",
-              background: colors[index],
-              borderRadius: "50%",
-              ...props,
-            }}
-            key={index}
-          ></animated.div>
-        ))}
+        <button onClick={togglePause}>Toggle</button>
+        <button onClick={reset}>Reset</button>
       </div>
-      <svg
-        width={radius * 2 * sides.length}
-        height={radius * 2}
-        fill="none"
-        strokeWidth="8"
-      >
-        {allPoints.map((points, index) => {
-          return (
-            <polygon
-              points={points.join(" ")}
+      <div>
+        <div>
+          {springs.map((props, index) => (
+            <animated.div
+              style={{
+                width: 40,
+                height: 40,
+                position: "absolute",
+                background: colors[index],
+                borderRadius: "50%",
+                ...props,
+              }}
               key={index}
-              stroke={colors[index]}
-            />
-          );
-        })}
-      </svg>
+            ></animated.div>
+          ))}
+        </div>
+        <svg
+          width={radius * 2 * sides.length}
+          height={radius * 2}
+          fill="none"
+          strokeWidth="8"
+        >
+          {allPoints.map((points, index) => {
+            return (
+              <polygon
+                points={points.join(" ")}
+                key={index}
+                stroke={colors[index]}
+              />
+            );
+          })}
+        </svg>
+      </div>
     </>
   );
 }

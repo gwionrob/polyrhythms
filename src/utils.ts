@@ -1,3 +1,5 @@
+import metrenomeSound from "./metronome.mp3";
+
 type Point = { x?: number; y?: number };
 
 export function range(count: number) {
@@ -47,4 +49,15 @@ export function pointMaker(rawPoint: number[], prevPoint?: number[]): Point {
     return { x: x };
   }
   return { x: x, y: y };
+}
+
+export function createAudios(sides: number[]): HTMLAudioElement[] {
+  const audios = [];
+  for (const side of sides) {
+    const audio = new Audio(metrenomeSound);
+    audio.preservesPitch = false;
+    audio.playbackRate = side / 3;
+    audios.push(audio);
+  }
+  return audios;
 }
